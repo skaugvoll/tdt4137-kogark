@@ -134,6 +134,57 @@ class Mamdani:
         return value
 
 
+    def getAction(self, distance, delta, clip):
+        print("******* Distance, delta in getActio = " +  str(distance) +  "  "  + str(delta))
+        action = "No rule specified..."
+        temp = 0
+        if distance[0] == "Small" and delta[0] =="Growing":
+            t = self.AND_TRIANGLE(distance[0], delta[0], clip)
+            if t > temp:
+                temp = t
+                action = "None"
+
+        if distance[0] == "Small" and delta[0] =="Stable":
+            t = self.AND_TRIANGLE(distance[0], delta[0], clip)
+            if t > temp:
+                temp = t
+                action = "SlowDown"
+
+        if distance[0] == "Perfect" and delta[0] =="Growing":
+            t = self.AND_TRIANGLE(distance[0], delta[0], clip)
+            if t > temp:
+                temp = t
+                action = "SpeedUp"
+
+        if "VeryBig" in distance and "Growing" in delta and "GrowingFast" in delta:
+            dix0,dix1 = self.distance_set()["VeryBig"][1]
+            dex0,dex1,dex2 = self.delta_time_set()["Growing"][1]
+            dex0,dex1 = self.delta_time_set()["GrowingFast"][1]
+
+            a = self.grade(self.distancePos, dix0,dix1, clip)
+            print ("*******A: " +  str(a))
+            b = self.NOT_rule(self.triangle(self.deltaPos, dex0,dex1,dex2, clip)) # not growing
+            print ("*******B: " +  str(b))
+            c = self.NOT_rule(self.grade(self.deltaPos,dex0,dex1,clip)) # not growingFast
+            print ("*******C: " +  str(c))
+
+            t = self.AND_rule(a, self.OR_rule(b,c))
+            print ("*******T: " +  str(t))
+            if t > temp:
+                temp = t
+                action = "FloorIt"
+
+        if distance[0] == "VerySmall":
+            dix0,dix1 = self.distance_set()["VerySmall"][1]
+
+            t = self.reverse_grade(self.distancePos, dix0, dix1, clip)
+            if t > temp:
+                temp = t
+                action = "BrakeHard"
+
+        # return action
+        return temp # should I return this ? and then pass / use this value to find action in action_set, by using testFuzzySetValue ??
+
 
     ########
     # Testing
@@ -171,10 +222,33 @@ class Mamdani:
         return setValues
 
 
+    def testGetAction(self, numTries):
+        distances = self.distance_set()
+        deltas = self.delta_time_set()
+        distancesKeys = list(distances.keys())
+        deltasKeys = list(deltas.keys())
+
+        dirlen = len(distancesKeys)-1
+        dellen = len(deltasKeys)-1
+
+        for i in range(numTries):
+            di = distancesKeys[r.randint(0,dirlen)]
+            de = deltasKeys[r.randint(0,dellen)]
+            a = self.getAction([di], [de], 100)
+
+            print("DI:", di)
+            print("DE:", de)
+            self.printResult("3.7", "1.2", a)
+
 
     ########
     # Meta
     #######
+    def setDistance(self, d):
+        self.distancePos = d
+
+    def setDelta(self, d):
+        self.deltaPos = d
 
 
     def printResult(self, directionPos, deltaPos, action):
@@ -196,7 +270,7 @@ class Mamdani:
         print ("DE pos: ", dePos)
 
         # Step 2: Rule evaluation
-
+        actionPosition = self.getAction(diPos, dePos, 100)
         self.printResult(self.distancePos, self.deltaPos, actionPosition)
 
 
