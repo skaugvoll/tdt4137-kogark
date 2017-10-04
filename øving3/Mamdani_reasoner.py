@@ -205,14 +205,50 @@ class Mamdani:
         intersection_set_delta = self.getIntersection(self.delta_time_set(),self.deltaPos)
         print("distance intersection ",intersection_set_dist," delta intersection ",intersection_set_delta)
 
-        #step 2: Rule evaluation
+        #step 2 and 3: Rule evaluation and aggregation giving a new set with clipped values.
+        #Rule evaluation is finding the clip values, and aggregation is combining these into a new set
         action_set = self.RuleEvaluation(intersection_set_dist,intersection_set_delta,100)
         print("action set: ",action_set)
 
-        #step 3: Aggregation
+        aggregated_set = self.aggregate(action_set)
+        print("Aggregated set ",aggregated_set)
+        #step 4: Defuzzification
+        defuzz = self.Defuzzification(aggregated_set)
+        print("Some value ", defuzz)
 
 
+    def Defuzzification(self,aggregated_set):
 
+        top_level = 0.0
+        bottom_level = 0.0
+
+        for key in aggregated_set:
+            values = aggregated_set[key][1]
+            val = 0
+            count = 0
+            for x in range(values[0],values[2]+1):
+                val += x
+                count += 1
+
+            top_level +=val*values[1]
+            bottom_level += count*values[1]
+
+        COG = top_level/bottom_level
+        return COG
+
+    def aggregate(self,action_set):
+
+        aggregated_set = {}
+        action_s = self.action_set()
+
+        for key in action_set:
+            aggregated_set[key] = action_s[key]
+            if(aggregated_set[key][0] == "RG"):
+                aggregated_set[key][1][0] = action_set[key]
+            else:
+                aggregated_set[key][1][1] = action_set[key]
+
+        return aggregated_set
 
 
 
