@@ -125,57 +125,6 @@ class Mamdani:
         value = self.AND_rule(self.triangle(self.distancePos, dix0, dix1, dix2, clip), self.triangle(self.deltaPos, dex0, dex1, dex2, clip))
         return value
 
-        def getAction(self, distance, delta, clip):
-            print("******* Distance, delta in getActio = " +  str(distance) +  "  "  + str(delta))
-            action = "No rule specified..."
-            temp = 0
-            if "Small" in distance and "Growing" in delta:
-                t = self.AND_TRIANGLE("Small", "Growing", clip)
-                if t > temp:
-                    temp = t
-                    action = "None"
-
-            if  "Small" in distance and "Stable" in delta:
-                t = self.AND_TRIANGLE(distance[0], delta[0], clip)
-                if t > temp:
-                    temp = t
-                    action = "SlowDown"
-
-            if "Perfect" in distance and "Growing" in delta:
-                t = self.AND_TRIANGLE(distance[0], delta[0], clip)
-                if t > temp:
-                    temp = t
-                    action = "SpeedUp"
-
-            if "VeryBig" in distance and "Growing" in delta and "GrowingFast" in delta:
-                dix0,dix1 = self.distance_set()["VeryBig"][1]
-                dex0,dex1,dex2 = self.delta_time_set()["Growing"][1]
-                dex0,dex1 = self.delta_time_set()["GrowingFast"][1]
-
-                a = self.grade(self.distancePos, dix0,dix1, clip)
-                print ("*******A: " +  str(a))
-                b = self.NOT_rule(self.triangle(self.deltaPos, dex0,dex1,dex2, clip)) # not growing
-                print ("*******B: " +  str(b))
-                c = self.NOT_rule(self.grade(self.deltaPos,dex0,dex1,clip)) # not growingFast
-                print ("*******C: " +  str(c))
-
-                t = self.AND_rule(a, self.OR_rule(b,c))
-                print ("*******T: " +  str(t))
-                if t > temp:
-                    temp = t
-                    action = "FloorIt"
-
-            if  "VerySmall" in distance:
-                dix0,dix1 = self.distance_set()["VerySmall"][1]
-
-                t = self.reverse_grade(self.distancePos, dix0, dix1, clip)
-                if t > temp:
-                    temp = t
-                    action = "BrakeHard"
-
-            # return action
-            return temp # should I return this ? and then pass / use this value to find action in action_set, by using testFuzzySetValue ??
-
 
 
     ########
@@ -185,9 +134,47 @@ class Mamdani:
     '''
     Basically, find the sub-set the position belongs to, in a given fuzzy set.
     '''
-    def RuleEvaluation(self, position=0, set_={}):
+    def RuleEvaluation(self, distance, delta, clip=100):
 
-        return
+        print("******* Distance, delta in getActio = " + str(distance) + "  " + str(delta))
+        return_set = {}
+        if "Small" in distance and "Growing" in delta:
+            t = self.AND_TRIANGLE("Small", "Growing", clip)
+            return_set["None"] = t
+
+        if "Small" in distance and "Stable" in delta:
+            #print("distance",distance,"delta ",delta)
+            t = self.AND_TRIANGLE("Small", "Stable", clip)
+            return_set["SlowDown"] = t
+
+        if "Perfect" in distance and "Growing" in delta:
+            t = self.AND_TRIANGLE("Perfect", "Growing", clip)
+            return_set["SpeedUp"] = t
+
+        if "VeryBig" in distance and "Growing" in delta and "GrowingFast" in delta:
+            dix0, dix1 = self.distance_set()["VeryBig"][1]
+            dex0, dex1, dex2 = self.delta_time_set()["Growing"][1]
+            dex0, dex1 = self.delta_time_set()["GrowingFast"][1]
+
+            a = self.grade(self.distancePos, dix0, dix1, clip)
+            print("*******A: " + str(a))
+            b = self.NOT_rule(self.triangle(self.deltaPos, dex0, dex1, dex2, clip))  # not growing
+            print("*******B: " + str(b))
+            c = self.NOT_rule(self.grade(self.deltaPos, dex0, dex1, clip))  # not growingFast
+            print("*******C: " + str(c))
+
+            t = self.AND_rule(a, self.OR_rule(b, c))
+            print("*******T: " + str(t))
+            return_set["FoorIt"] = t
+
+        if "VerySmall" in distance:
+            dix0, dix1 = self.distance_set()["VerySmall"][1]
+            t = self.reverse_grade(self.distancePos, dix0, dix1, clip)
+            return_set["BrakeHard"] = t
+
+        # return action
+        return return_set  # should I return this ? and then pass / use this value to find action in action_set, by using testFuzzySetValue ??
+
 
 
 
@@ -214,8 +201,20 @@ class Mamdani:
 
     def reasoning(self):
         #Step 1: Fuzzication (Find values for each set in fuzzyset)
-        print(self.getIntersection(self.distance_set(),self.distancePos))
-        return
+        intersection_set_dist = self.getIntersection(self.distance_set(),self.distancePos)
+        intersection_set_delta = self.getIntersection(self.delta_time_set(),self.deltaPos)
+        print("distance intersection ",intersection_set_dist," delta intersection ",intersection_set_delta)
+
+        #step 2: Rule evaluation
+        action_set = self.RuleEvaluation(intersection_set_dist,intersection_set_delta,100)
+        print("action set: ",action_set)
+
+        #step 3: Aggregation
+
+
+
+
+
 
     def getNonZeroSubSets(self, s):
         sets = []
