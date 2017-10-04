@@ -36,7 +36,7 @@ class Mamdani:
         setValues = {
             "VerySmall": ['RG', [1.5, 2.75]],
             "Small": ['T', [1.75, 3, 4.75]],
-            "Perfect": ['T', [3.75, 5 ,6.75]],
+            "Perfect": ['T', [3.75, 5, 6.75]],
             "Big": ['T', [5.75, 7, 8.75]],
             "VeryBig": ['G', [7.75, 9]]
         }
@@ -112,14 +112,6 @@ class Mamdani:
 
         return value
 
-    def getAggregation(self, set_={}):
-        s = 0
-        for k in set_:
-            s += set_[k]
-
-        print("*********Sum Aggregation: " + str(s))
-        return s
-
 
 
     ########
@@ -142,33 +134,9 @@ class Mamdani:
     '''
     Basically, find the sub-set the position belongs to, in a given fuzzy set.
     '''
-    def testFuzzySetValue(self, position=0, set_={}):
-        s = set_
-        heighestVal = 0.0
-        heighestBelonging = ""
-        pos = position
-        setValues = {}
-        for k in s:
-            dist = s[k]
-            # print(k)
-            # print(dist, len(dist), k)
-            if(dist[0] == "RG"):
-                tempval = self.reverse_grade(pos, dist[1][0], dist[1][1], 100)
+    def RuleEvaluation(self, position=0, set_={}):
 
-            elif(dist[0] == "G"):
-                tempval = self.grade(pos, dist[1][0], dist[1][1], 100)
-            else:
-                tempval = self.triangle(pos, dist[1][0], dist[1][1], dist[1][2], 100)
-
-            setValues[k] = tempval
-            # print(k,tempval)
-
-            if(tempval > heighestVal):
-                heighestVal = tempval
-                heighestBelonging = k
-
-        # print(heighestVal, heighestBelonging)
-        return setValues
+        return
 
 
 
@@ -180,78 +148,23 @@ class Mamdani:
     def printResult(self, directionPos, deltaPos, action):
         print("Distance position is: %s \nDelta position is: %s\nAction position: %s\n" %(directionPos, deltaPos, action))
 
+    def getIntersection(self,set,value):
+        dict = {}
+        for key in set:
+            if set[key][1][0] <= value and value <= set[key][1][-1]:
+                if set[key] == 'RG':
+                    dict[key] = self.reverse_grade(value,set[key][1][0],set[key][1][1],100)
+                elif set[key] == 'T':
+                    dict[key] = self.triangle(value,set[key][1][0],set[key][1][1],set[key][1][2],100)
+                else:
+                    dict[key] = self.grade(value,set[key][1][0],set[key][1][1],100)
+        return dict
+
 
     def reasoning(self):
-        # Step 1: Fuzzication (Find values for each set in fuzzyset)
-        self.distanceValues = self.testFuzzySetValue(self.distancePos, set_=self.distance_set())
-        self.deltaValues = self.testFuzzySetValue(self.deltaPos, set_=self.delta_time_set())
-
-        print("distance values: ", self.distanceValues)
-        print("delta values: ", self.deltaValues)
-
-        diPos = self.getNonZeroSubSets(self.distanceValues)
-        dePos = self.getNonZeroSubSets(self.deltaValues)
-
-        print ("DI pos: ", diPos )
-        print ("DE pos: ", dePos)
-
-        # Step 2: Rule evaluation
-
-        self.printResult(self.distancePos, self.deltaPos, actionPosition)
-
-
-        # Step 3: Aggregation (finding output/action)
-        '''
-        - Process of unification of the outputs of all rules
-        - Take membership functions of all rule consequents (etterledd) prev. clipped and combine them into a single single fuzzy set
-        - The input of the aggregation process is the list of clipped or scaled consequent membership functions,
-          and the output is one fuzzy set for each output variable.
-          - Basically just sum up all the rule values. (getAction, just sum up instaed of find heighest)
-        '''
-
-        self.actionValues = self.testFuzzySetValue(actionPosition, set_=self.action_set())
-        print("ActionValues is: ", self.actionValues)
-
-        # a = getHeighest(self.actionValues)
-        # print("Action to take is: " + str(a))
-
-
-        # Step 4: Defuzzification
-
-        # TODO: Regn sammen COG!
-            # regn COGt
-        w = {**self.distance_set(), **self.delta_time_set()}
-        COGt = 0
-
-        for ss in self.action_set():
-            setValues = self.action_set()[ss][1]
-            print(setValues)
-
-            x = 0 # legg sammen alle x verdiene
-            print(setValues[-1])
-            for i in range(int(setValues[0]), int(setValues[-1]+1)):
-                x += i
-            y = self.actionValues[ss] # actionValue for dette sub settet
-            print("*****X and Y: ", x, y)
-            COGt += x * y
-            print("***********COGt", COGt)
-        print(COGt)
-
-
-
-            # regn COGb
-        COGb = None
-        for hvertSubSet in hvertFuzzySet:
-            x = hvertSubSet[1][0] - hvertSubSet[1][-1] # antall x-steg ( x verdier subsettet strekker seg over) x1 - x2 =>  [(-3) - 3] = 6 steps
-            y = 0 # actionValue for dette sub settet
-            COGb += x * y
-
-        sumCOG = COGt / COGb
-
-        print("Sum COG: ", sumCOG)
-
-        return sumCOG
-
+        #Step 1: Fuzzication (Find values for each set in fuzzyset)
+        print(self.getIntersection(self.distance_set(),self.distancePos))
+        return
 
     def getNonZeroSubSets(self, s):
         sets = []
@@ -267,26 +180,16 @@ class Mamdani:
 # Running this badboy
 #######
 
-def getHeighest(s):
-    action = ""
-    tempval = -1000000
-    for k in s:
-        if s[k] > tempval:
-            tempval = s[k]
-            action = k
-
-    return action
 
 
-
-def main(directionPos, deltaPos):
+def main(distancePos, deltaPos):
     '''
      Assignment values: $ python Mamdani_reasoner.py 3.7 1.7
     '''
 
-    directionPos = float(directionPos) # convert sys args to float, not string
+    distancePos = float(distancePos) # convert sys args to float, not string
     deltaPos = float(deltaPos) # convert sys args to float, not string
-    m = Mamdani(directionPos, deltaPos)
+    m = Mamdani(distancePos, deltaPos)
 
     print(str(m) + "\n")
 
