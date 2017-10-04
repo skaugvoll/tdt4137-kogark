@@ -290,34 +290,10 @@ def main(directionPos, deltaPos):
 
     print(str(m) + "\n")
 
-    ########
-    # dist = m.distance_set()
-    # val = m.triangle(3, dist[0], dist[1], dist[2])
-    # print(val)
-    ########
 
-    ########
-    # s = m.distance_set()
-    # m.testFuzzySetValue(position=3.7, set_=s)
-    ########
-
-    ########
-    # m.testGetAction(10)
-    ########
-
-    ########
-    # actionPosition = m.getAction(["Small"], ["Growing"], 100)
-    # m.printResult(directionPos, deltaPos, actionPosition)
-    #
-    # actionValues = m.testFuzzySetValue(actionPosition, set_=m.action_set())
-    # # print(actionValues)
-    #
-    # a = getHeighest(actionValues)
-    # print("Action to take is: " + str(a))
-    ########
 
     action = m.reasoning()
-    print("Action to take is: " + str(action))
+    print("Action crisp value is: " + str(action))
 
 
 
