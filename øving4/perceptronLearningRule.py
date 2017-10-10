@@ -1,8 +1,7 @@
-
 import random
 import generateSimpleCases
 
-class Percepton():
+class Perceptron():
     def __init__(self, training_set = None, training_validation_set = None, test_set=None, test_validation=None, minweight=-5, maxweight=5, numberOfFeatures=None, learning_rate=0.1):
         self.training_set = training_set
         self.training_validation_set = training_validation_set
@@ -77,16 +76,20 @@ class Percepton():
         '''
         self.y = 0 # reset y for each "input-round"
         if learning:
-            inputs = self.training_set[p]
+            x = self.training_set[p]
         else:
-            inputs = self.test_set[p]
+            x = self.test_set[p]
         # print("Step 2 repporting!")
 
-        # activationFunction = (lambda i: inputs[i] * self.weights[i] - self.theta, i)
-        activationFunction = (lambda i: inputs[i] * self.weights[i])
+        # activationFunction = (lambda i: x[i] * self.weights[i] - self.theta)
+        activationFunction = (lambda i: x[i] * self.weights[i])
 
-        for i in range(len(inputs)):
+        for i in range(len(x)):
+            # v = activationFunction(i)
+            # self.y += v
+            # print("W{}: {}".format(i,v))
             self.y += activationFunction(i) # p = inputs[i] = features
+
 
         self.y -= self.theta
 
@@ -128,34 +131,26 @@ class Percepton():
         return Ydesired - Yp
 
 
+##########
+# End of Algorithm / Neural Network code
+##########
+
+def train(perceptron, p):
+    perceptrion.activation(p=p)
+    perceptron.weightTraining(p=p)
 
 def main():
     # [x, y] coordinates. Want to classify all positive x as a group, and all negative as one group
     numberOfFeatures = 2
-    # testSet = [   [-1,2], [1,2], [8,2], [-4,7], [9,1], [-1,9], [-9,1], [6,6], [6,1], [-5,1]]
-    # testValidation = [0, 1, 1, 0, 1, 0, 0, 1, 1, 0]
-    testSet = generateSimpleCases.generateTestingCases(20)
+    corrects = 0
+
+    testSet = generateSimpleCases.generateTestingCases(2)
     testValidation = generateSimpleCases.getLabels(testSet)
 
-    # trainingSet = [
-    #     [2,0],
-    #     [3,7],
-    #     [-1,5],
-    #     [-2,4],
-    #     [4,4],
-    #     [-9,9],
-    #     [5,3],
-    #     [-4,0]
-    # ]
-    # training_validation_set = [1,1,0,0,1,0,1,0]
-
-    trainingSet = generateSimpleCases.generateTestingCases(70)
+    trainingSet = generateSimpleCases.generateTestingCases(7)
     training_validation_set = generateSimpleCases.getLabels(trainingSet)
 
-    print(len(trainingSet), len(training_validation_set))
-
-
-    per = Percepton(
+    per = Perceptron(
         training_set=trainingSet,
         training_validation_set=training_validation_set,
         test_set=testSet,
@@ -165,7 +160,7 @@ def main():
     # print(per)
 
     per.initialisation()
-    # print(per)
+    print(per)
 
     p = 0
     while p < len(trainingSet):
@@ -173,10 +168,9 @@ def main():
         per.weightTraining(p=p) # calculate new weight! and set it! --> this equals to (p + 1), because next iteration gets the new weight
         p += 1
 
-    print("Trainin complete...\nNow testing...")
+    print("Training complete!")
+    print("Now testing")
 
-    # TODO testing!
-    corrects = 0
     for p in range(len(testSet)):
         per.activation(p=p, learning=False)
         y = per.y
@@ -188,8 +182,9 @@ def main():
         print(formateString)
 
     print("Successrate: {}".format(corrects/len(testSet)))
+    print(per)
 
 
 
-
-main()
+if __name__ == '__main__':
+    main()
