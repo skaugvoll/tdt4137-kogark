@@ -6,6 +6,7 @@
 1. What are `step` in activation function (step 2)
 2. are `X` and `W` functions, since in `step 2 (activation)` they take in iteration `p` 
 3. Should `Y` be a list holding all calculated Y's since Y also takes in P?
+4. What is `p` is it the same as `x` ? I need help to understand how to do step 2, activation.
 
 ### Notes from reading
 
