@@ -2,12 +2,12 @@
 import random
 
 class Percepton():
-    def __init__(self, minweight=-5, maxweight=5, numberOfWeights=10):
+    def __init__(self, minweight=-5, maxweight=5, numberOfFeatures=None):
         self.weights = []
         self.minweight = minweight
         self.maxweight = maxweight
         self.theta = random.uniform(self.minweight, self.maxweight)
-        self.numberOfWeights = numberOfWeights
+        self.numberOfWeights = numberOfFeatures
         self.y = 0
 
     def __repr__(self):
@@ -48,7 +48,7 @@ class Percepton():
         self.weights = [random.uniform(self.minweight, self.maxweight) for x in range(self.numberOfWeights)]
 
 
-    def activation(self, *inputs):
+    def activation(self, inputs, p=None):
         '''
         Step 2:
         Activation, activate the perceptron by applying inputs x1(p),x2(p),...,xn(p)
@@ -61,37 +61,68 @@ class Percepton():
         n, is number of perceptron inputs,
         step, is a step activation function
 
+        Note:
+        In this function the *inputs are all the Xi s (perceptron inputs) thus
+        the lenght / number of inputs equals n.
+
         :param *inputs: Any number of inputs x1,..., xn
-        :param p: Iteration
+        :param p: Iteration or pth number of training example
         :return: returns nothing
         '''
-        activationFunction = (lambda i: inputs[i] * self.weights[i] - self.theta)
+        # activationFunction = (lambda i: inputs[i] * self.weights[i] - self.theta, i)
+        activationFunction = (lambda i: inputs[i] * self.weights[i])
+
         for i in range(len(inputs)):
-            self.y += activationFunction(i)
+            self.y += activationFunction(i) # p = inputs[i] = features
+
+        self.y -= self.theta
 
 
 
+    def weightTraining(self, p=None):
+        '''
+        Step 3:
+        Weight training, update the weights of the perceptron
 
+        The Update function is;
+        Wi(p + 1) = Wi(p) + 𝚫Wi(p)
 
+         The 𝚫Wi(p) function is;
+         𝚫Wi(p) = 𝛂 * Xi(p) * e(p)
 
-    def weightTraining(self):
-        pass
+         The e(p) function is;
+         e(p) = Yd(p) - Y(p), where p = 1,2,3... (p here refers to the pth training exapmle presented to the perceptron.)
 
+         Note:
+         All we do is calculate the new weight for this feature, for the next iteration!
 
+         :param p: list of all features incoming, equal to x1,...,xn
+         :return: returns nothing
+        '''
+        for i in range(len(p)):
+            self.weights[i] = self.weights[i] + self.deltaRule(p, i)
 
+    def deltaRule(self, perceptron, index):
+        return self.learning_rate * perceptron[i] * self.calculateError(perceptron, index)
+
+    def calculateError(self, perceptron, index):
+        Ydesired = perceptron[index]
+        Yp = perceptron[index]
+        return Ydesired - Yp
 
 
 
 def main():
-    p = Percepton()
-    print(p)
+    p = [2,3]
+    per = Percepton(numberOfFeatures=len(p))
+    print(per)
 
 
-    p.initialisation()
-    print(p)
+    per.initialisation()
+    print(per)
 
-    p.activation(3,4,5,6)
-    print(p)
+    per.activation(p)
+    print(per)
 
 
 
