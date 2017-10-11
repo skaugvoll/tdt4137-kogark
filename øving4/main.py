@@ -20,23 +20,23 @@ def main(simulateExample=False):
     trainingSet = [[0,0], [0,1], [1,0], [1,1]]
     training_validation_set = [0, 0, 0, 1]
 
-    per = Perceptron(
+    perceptron = Perceptron(
         training_set=trainingSet,
         training_validation_set=training_validation_set,
         test_set=testSet,
         test_validation=testValidation,
         numberOfFeatures=numberOfFeatures
     ) # number of weights = number of features (X1,...Xn)
-    # print(per)
+    # print(perceptron)
 
-    per.initialisation()
-    print(per)
+    perceptron.initialisation()
+    print(perceptron)
 
     ###########
     # Reproduce example from book
     if simulateExample:
-      per.setWeights([0.3,-0.1])
-      per.setTheta(0.2)
+        perceptron.setWeights([0.3,-0.1])
+        perceptron.setTheta(0.2)
     ###########
 
     convergence = False
@@ -50,8 +50,8 @@ def main(simulateExample=False):
         sys.stdout.write(".")  # noting to do with the algoritm, just for "fancy terminal print"
         sys.stdout.flush()     # to defeat print buffer! .. this is what makes it behavie like a loding bar
 
-        y = per.activation(p=p) # try and classify, return estimated label
-        per.weightTraining(p=p) # train the weights, based on estimated labe, and how "wrong" it is.
+        y = perceptron.activation(p=p) # try and classify, return estimated label
+        perceptron.weightTraining(p=p) # train the weights, based on estimated labe, and how "wrong" it is.
 
         if y == training_validation_set[p]: # if classified correctly
             correctLabels += 1
@@ -79,8 +79,8 @@ def main(simulateExample=False):
 
     corrects = 0
     for p in range(len(testSet)):
-        per.activation(p=p, learning=False)
-        y = per.y
+        perceptron.activation(p=p, learning=False)
+        y = perceptron.y
         if (testValidation[p] == 0 and y <=0):
             corrects += 1
         elif (testValidation[p] ==1 and y > 0):
@@ -89,7 +89,7 @@ def main(simulateExample=False):
         print(formateString)
 
     print("Success rate: {}%".format(corrects/len(testSet)))
-    print(per)
+    print(perceptron)
 
 
 if __name__ == "__main__":
