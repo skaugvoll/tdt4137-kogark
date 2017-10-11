@@ -121,8 +121,9 @@ class Perceptron():
         '''
 
         for i in range(self.numberOfWeights):
+            print("W{} Before : {}".format(i, self.weights[i]))
             self.weights[i] = self.weights[i] + self.deltaRule(p, i)
-
+            print("W{} After : {}\n".format(i, self.weights[i]))
 
     def deltaRule(self, p, index):
         return self.learning_rate * self.training_set[p][index] * self.calculateError(p)

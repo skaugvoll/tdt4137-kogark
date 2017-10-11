@@ -8,17 +8,31 @@ def main(simulateExample=False):
     numberOfFeatures = 2
     maxEpocs=50
 
-    # testSet = generateSimpleCases.generateTestingCases(2)
-    # testValidation = generateSimpleCases.getLabels(testSet)
 
-    testSet = [[0,0], [0,1], [1,0], [1,1]]
-    testValidation = [0, 0, 0, 1]
-
+    ############ RANDOM X above / below 0 DATA SET #########
+    # testSetAND = generateSimpleCases.generateTestingCases(2)
+    # testValidation = generateSimpleCases.getLabels(testSetAND)
+    #
     # trainingSet = generateSimpleCases.generateTestingCases(7)
     # training_validation_set = generateSimpleCases.getLabels(trainingSet)
+    ###########################################################
 
-    trainingSet = [[0,0], [0,1], [1,0], [1,1]]
-    training_validation_set = [0, 0, 0, 1]
+    ###### AND DATA SET #########
+    # testSet = [[0,0], [0,1], [1,0], [1,1]]
+    # testValidation = [0, 0, 0, 1]
+    #
+    # trainingSet = [[0, 0], [0, 1], [1, 0], [1, 1]]
+    # training_validation_set = [0, 0, 0, 1]
+    #############################
+
+    ###### OR DATA SET #########
+    testSet = [[0, 0], [0, 1], [1, 0], [1, 1]]
+    testValidation = [0, 1, 1, 1]
+
+    trainingSet = [[0, 0], [0, 1], [1, 0], [1, 1]]
+    training_validation_set = [0, 1, 1, 1]
+    #############################
+
 
     perceptron = Perceptron(
         training_set=trainingSet,
@@ -27,10 +41,12 @@ def main(simulateExample=False):
         test_validation=testValidation,
         numberOfFeatures=numberOfFeatures
     ) # number of weights = number of features (X1,...Xn)
-    # print(perceptron)
 
+    '''
+        Step 1 : initialization
+        '''
     perceptron.initialisation()
-    print(perceptron)
+
 
     ###########
     # Reproduce example from book
@@ -39,13 +55,16 @@ def main(simulateExample=False):
         perceptron.setTheta(0.2)
     ###########
 
+    print(perceptron)
+    print("Training", end="")   # noting to do with the algoritm, just for "fancy terminal print"
+    tstart = time.time()
+    '''
+    Step 2: Training the perceptron
+    '''
     convergence = False
     epoch = 0
     correctLabels = 0
     p = 0
-
-    print("Training", end="")   # noting to do with the algoritm, just for "fancy terminal print"
-    tstart = time.time()
     while not convergence or epoch == maxEpocs:
         sys.stdout.write(".")  # noting to do with the algoritm, just for "fancy terminal print"
         sys.stdout.flush()     # to defeat print buffer! .. this is what makes it behavie like a loding bar
@@ -70,13 +89,12 @@ def main(simulateExample=False):
     tend = time.time()
 
 
-
-
-
-
     print("Training complete in {:.2f}seconds and {} epochs!".format(tend - tstart, epoch))
     print("Now testing")
 
+    '''
+    Step 3: Testing the perceptron
+    '''
     corrects = 0
     for p in range(len(testSet)):
         perceptron.activation(p=p, learning=False)
@@ -88,6 +106,10 @@ def main(simulateExample=False):
         formateString = ("{} should be {}, and are : {}").format(testSet[p], testValidation[p], y)
         print(formateString)
 
+
+    '''
+    Step 4: Printing the success rate
+    '''
     print("Success rate: {}%".format(corrects/len(testSet)))
     print(perceptron)
 
