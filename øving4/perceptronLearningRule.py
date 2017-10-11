@@ -92,6 +92,8 @@ class Perceptron():
 
 
         self.y -= self.theta
+        return self.y
+
 
 
 
