@@ -1,7 +1,8 @@
 # Project specific
 gui.py
 testfile.py
-
+.idea/
+*.xml
 
 #Byte-compiled / optimized / DLL files
 __pycache__/
