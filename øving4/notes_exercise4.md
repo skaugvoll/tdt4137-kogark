@@ -4,7 +4,7 @@
 
 ### Questions:
 1. What are `step` in activation function (step 2)
-2. are `X` and `W` functions, since in `step 2 (activation)` they take in iteration `p` 
+2. are `X` and `W` functions, since in `step 2 (activation)` they take in iteration `p`
 3. Should `Y` be a list holding all calculated Y's since Y also takes in P?
 4. What is `p` is it the same as `x` ? I need help to understand how to do step 2, activation.
 
@@ -13,9 +13,9 @@
 #### Sign function
 Sign is one of many activation functions. It's also a hard limit function.
 All it actually does is;
-Computes the weighted sum of the input signals and compares the result with a threshold value, 𝜭. 
+Computes the weighted sum of the input signals and compares the result with a threshold value, 𝜭.
 
-If the net unout is less than the threshold, the neuron outpus is -1. But if the net input is greater than or equal to the threshold, the neouron becomes activated and itis output attains a vaue +1. 
+If the net unout is less than the threshold, the neuron outpus is -1. But if the net input is greater than or equal to the threshold, the neouron becomes activated and itis output attains a vaue +1.
 
 _func_:
 
@@ -36,7 +36,7 @@ y = is the output of the neuron
 
 
 #### P - iteration
-`P` represents the pth training example presented to the perceptron. 
+`P` represents the pth training example presented to the perceptron.
 
 
 #### Error function:
@@ -52,5 +52,4 @@ w<sub>i</sub>(p + 1) = w<sub>i</sub>(p) + 𝛂 * x<sub>i</sub>(p) * e(p)
 The learning rate a positive constant less than unity.
 
 
-
-
+Epcoh, en iterasjon gjennom treningsettet

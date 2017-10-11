@@ -1,13 +1,18 @@
-
 import random
+import generateSimpleCases
 
-class Percepton():
-    def __init__(self, minweight=-5, maxweight=5, numberOfFeatures=None):
+class Perceptron():
+    def __init__(self, training_set = None, training_validation_set = None, test_set=None, test_validation=None, minweight=-.5, maxweight=.5, numberOfFeatures=None, learning_rate=.1):
+        self.training_set = training_set
+        self.training_validation_set = training_validation_set
+        self.test_set = test_set
+        self.test_validation = test_validation
         self.weights = []
         self.minweight = minweight
         self.maxweight = maxweight
         self.theta = random.uniform(self.minweight, self.maxweight)
         self.numberOfWeights = numberOfFeatures
+        self.learning_rate = learning_rate
         self.y = 0
 
     def __repr__(self):
@@ -30,6 +35,9 @@ class Percepton():
         self.minweight = minweight
         self.maxweight = maxweight
 
+    def setWeights(self, weights):
+        self.weights=weights
+
     def setNumberOfWeights(self, numberOfWeights=10):
         self.numberOfWeights = numberOfWeights
 
@@ -48,7 +56,7 @@ class Percepton():
         self.weights = [random.uniform(self.minweight, self.maxweight) for x in range(self.numberOfWeights)]
 
 
-    def activation(self, inputs, p=None):
+    def activation(self, p=None, learning=True):
         '''
         Step 2:
         Activation, activate the perceptron by applying inputs x1(p),x2(p),...,xn(p)
@@ -69,13 +77,25 @@ class Percepton():
         :param p: Iteration or pth number of training example
         :return: returns nothing
         '''
-        # activationFunction = (lambda i: inputs[i] * self.weights[i] - self.theta, i)
-        activationFunction = (lambda i: inputs[i] * self.weights[i])
+        self.y = 0 # reset y for each "input-round"
+        if learning:
+            x = self.training_set[p]
+        else:
+            x = self.test_set[p]
 
-        for i in range(len(inputs)):
-            self.y += activationFunction(i) # p = inputs[i] = features
+        # activationFunction = (lambda i: x[i] * self.weights[i])
 
-        self.y -= self.theta
+        for i in range(len(x)):
+            # self.y += activationFunction(i) # p = inputs[i] = features
+            self.y += x[i] * self.weights[i]
+
+        if(self.y >= self.theta):
+            self.y = 1
+        else:
+            self.y = 0
+
+        return self.y
+
 
 
 
@@ -99,31 +119,100 @@ class Percepton():
          :param p: list of all features incoming, equal to x1,...,xn
          :return: returns nothing
         '''
-        for i in range(len(p)):
+        # print("WEIGHTS OLD", self.weights)
+        for i in range(self.numberOfWeights):
             self.weights[i] = self.weights[i] + self.deltaRule(p, i)
+        # print("WEIGHTS NEW", self.weights)
 
-    def deltaRule(self, perceptron, index):
-        return self.learning_rate * perceptron[i] * self.calculateError(perceptron, index)
+    def deltaRule(self, p, index):
+        print("DELTA RULE:", self.learning_rate * self.training_set[p][index] * self.calculateError(p))
+        return self.learning_rate * self.training_set[p][index] * self.calculateError(p)
 
-    def calculateError(self, perceptron, index):
-        Ydesired = perceptron[index]
-        Yp = perceptron[index]
+    def calculateError(self, p):
+        Ydesired = self.training_validation_set[p]
+        Yp = self.y
+        print("Ydesired: ", Ydesired, "Yp:", Yp)
         return Ydesired - Yp
 
 
+##########
+# End of Algorithm / Neural Network code
+##########
+
+def train(perceptron, p):
+    perceptron.activation(p=p)
+    perceptron.weightTraining(p=p)
 
 def main():
-    p = [2,3]
-    per = Percepton(numberOfFeatures=len(p))
-    print(per)
+    # [x, y] coordinates. Want to classify all positive x as a group, and all negative as one group
+    numberOfFeatures = 2
 
+    testSet = [[0,0], [0,1], [1,0], [1,1]]
+    testValidation = [0, 0, 0, 1]
+
+    trainingSet = [[0,0], [0,1], [1,0], [1,1]]
+    training_validation_set = [0, 0, 0, 1]
+
+    per = Perceptron(
+        training_set=trainingSet,
+        training_validation_set=training_validation_set,
+        test_set=testSet,
+        test_validation=testValidation,
+        numberOfFeatures=numberOfFeatures
+    ) # number of weights = number of features (X1,...Xn)
+    # print(per)
 
     per.initialisation()
+
+    ###########
+    # Reproduce example from book
+    #
+    # per.setWeights([0.3,-0.1])
+    # per.setTheta(0.2)
+    ###########
+
     print(per)
 
-    per.activation(p)
+
+    epoch = 0
+    correct = 0
+    p = 0
+    while correct != 4:
+
+        y = per.activation(p=p)
+
+        per.weightTraining(p=p) # calculate new weight! and set it! --> this equals to (p + 1), because next iteration gets the new weight
+
+        print("Y:", y, " TrainValSet[p]:", training_validation_set[p], "Corrects:", correct)
+        if y == training_validation_set[p]:
+            correct += 1
+
+
+        p += 1 # new iteration / next test element
+
+        if (p == len(trainingSet) and correct != 4):
+            p = 0 # start on the first training element again
+            correct = 0 # start counting again
+            epoch += 1 # we have done one whole epoch
+
+
+    print("Training complete!")
+    print("Now testing")
+    corrects = 0
+    for p in range(len(testSet)):
+        per.activation(p=p, learning=False)
+        y = per.y
+        if (testValidation[p] == 0 and y <=0):
+            corrects += 1
+        elif (testValidation[p] ==1 and y > 0):
+            corrects +=1
+        formateString = ("{} should be {}, and are : {}").format(testSet[p], testValidation[p], y)
+        print(formateString)
+
+    print("Successrate: {}".format(corrects/len(testSet)))
     print(per)
 
 
 
-main()
+if __name__ == '__main__':
+    main()
