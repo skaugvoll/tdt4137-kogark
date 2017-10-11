@@ -92,6 +92,10 @@ class Perceptron():
 
 
         self.y -= self.theta
+        if(self.y >= 0):
+            self.y = 1
+        else:
+            self.y = 0
         return self.y
 
 
@@ -146,11 +150,11 @@ def main():
     numberOfFeatures = 2
     corrects = 0
 
-    testSet = generateSimpleCases.generateTestingCases(2)
-    testValidation = generateSimpleCases.getLabels(testSet)
+    testSet = [[0,0], [0,1], [1,0], [1,1]]
+    testValidation = [1, 0, 0, 1]
 
-    trainingSet = generateSimpleCases.generateTestingCases(7)
-    training_validation_set = generateSimpleCases.getLabels(trainingSet)
+    trainingSet = [[0,0], [0,1], [1,0], [1,1]]
+    training_validation_set = [1, 0, 0, 1]
 
     per = Perceptron(
         training_set=trainingSet,
