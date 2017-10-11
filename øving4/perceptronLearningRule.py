@@ -83,11 +83,11 @@ class Perceptron():
         else:
             x = self.test_set[p]
 
-        # activationFunction = (lambda i: x[i] * self.weights[i])
+        activationFunction = (lambda i: x[i] * self.weights[i])
 
         for i in range(len(x)):
-            # self.y += activationFunction(i) # p = inputs[i] = features
-            self.y += x[i] * self.weights[i]
+            self.y += activationFunction(i) # p = inputs[i] = features
+            # self.y += x[i] * self.weights[i]
 
         if(self.y >= self.theta):
             self.y = 1
@@ -119,19 +119,17 @@ class Perceptron():
          :param p: list of all features incoming, equal to x1,...,xn
          :return: returns nothing
         '''
-        # print("WEIGHTS OLD", self.weights)
+
         for i in range(self.numberOfWeights):
             self.weights[i] = self.weights[i] + self.deltaRule(p, i)
-        # print("WEIGHTS NEW", self.weights)
+
 
     def deltaRule(self, p, index):
-        print("DELTA RULE:", self.learning_rate * self.training_set[p][index] * self.calculateError(p))
         return self.learning_rate * self.training_set[p][index] * self.calculateError(p)
 
     def calculateError(self, p):
         Ydesired = self.training_validation_set[p]
         Yp = self.y
-        print("Ydesired: ", Ydesired, "Yp:", Yp)
         return Ydesired - Yp
 
 
@@ -167,8 +165,8 @@ def main():
     ###########
     # Reproduce example from book
     #
-    # per.setWeights([0.3,-0.1])
-    # per.setTheta(0.2)
+    per.setWeights([0.3,-0.1])
+    per.setTheta(0.2)
     ###########
 
     print(per)
@@ -183,7 +181,6 @@ def main():
 
         per.weightTraining(p=p) # calculate new weight! and set it! --> this equals to (p + 1), because next iteration gets the new weight
 
-        print("Y:", y, " TrainValSet[p]:", training_validation_set[p], "Corrects:", correct)
         if y == training_validation_set[p]:
             correct += 1
 
