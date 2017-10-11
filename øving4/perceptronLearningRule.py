@@ -2,7 +2,7 @@ import random
 import generateSimpleCases
 
 class Perceptron():
-    def __init__(self, training_set = None, training_validation_set = None, test_set=None, test_validation=None, minweight=-.5, maxweight=.5, numberOfFeatures=None, learning_rate=0.1):
+    def __init__(self, training_set = None, training_validation_set = None, test_set=None, test_validation=None, minweight=-.5, maxweight=.5, numberOfFeatures=None, learning_rate=.1):
         self.training_set = training_set
         self.training_validation_set = training_validation_set
         self.test_set = test_set
@@ -34,6 +34,9 @@ class Perceptron():
     def setWeightBounds(self, minweight=-5, maxweight=5):
         self.minweight = minweight
         self.maxweight = maxweight
+
+    def setWeights(self, weights):
+        self.weights=weights
 
     def setNumberOfWeights(self, numberOfWeights=10):
         self.numberOfWeights = numberOfWeights
@@ -160,6 +163,14 @@ def main():
     # print(per)
 
     per.initialisation()
+
+    ###########
+    # Reproduce example from book
+    #
+    # per.setWeights([0.3,-0.1])
+    # per.setTheta(0.2)
+    ###########
+
     print(per)
 
 
@@ -183,11 +194,6 @@ def main():
             p = 0 # start on the first training element again
             correct = 0 # start counting again
             epoch += 1 # we have done one whole epoch
-
-
-
-
-
 
 
     print("Training complete!")
