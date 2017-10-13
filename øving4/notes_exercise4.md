@@ -76,6 +76,17 @@ First, it computes the net weighted input as before: X = The sum of (xi * wi), f
 
 Then the value X is passed into the activation function. i.e a sigmoid function.
 
+
+### Calculating the output
+X = sum (xi * wi)  if there is a bias X += bias * theta
+
+if X is bigger or equal to theta, X is 1, else X is 0
+Then since we use sigmoid Y =   X / 1 + e^x  
+
+
+
+
+
 ***
 Continue reading from  Page 177, What about the learning law used in the back-propagation networks?
 ***
