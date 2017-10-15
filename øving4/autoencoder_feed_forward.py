@@ -155,10 +155,21 @@ def getFromDataset(ds, want):
 # TASK 4 c
 ##############
 
+def notRandomTestData():
+    ds = SupervisedDataSet(1,1)
+
+    ds.addSample(9, 9)
+    ds.addSample(0, 0)
+    ds.addSample(-2.5, -2.5)
+    ds.addSample(9.7, 9.7)
+    ds.addSample(float('inf'), float('inf'))
+    return ds
+
 def main():
     # Task 1: Creating the dataset
     training_ds = createAutoencoderDataset(length=8)
-    testing_ds= createAutoencoderDataset(length=5, random=True)
+    # testing_ds= createAutoencoderDataset(length=5, random=True)
+    testing_ds= notRandomTestData()
 
     # task 2: Build the nettwork
     net = FFNetwork(numberOfHiddenLayers=1)
