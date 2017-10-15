@@ -1,5 +1,7 @@
 from pybrain.structure import FeedForwardNetwork, LinearLayer, TanhLayer, FullConnection
 from pybrain.supervised.trainers import BackpropTrainer
+from pybrain.structure.modules import BiasUnit
+import random as r
 
 '''
 AUTOENCODER:
@@ -13,34 +15,45 @@ Thus this gives some criterias or definition.
 class FFNetwork():
     def __init__(self, numberOfHiddenLayers=1):
         self.net = FeedForwardNetwork()
-        self.inLayer = None
         self.numberOfHiddenLayers = numberOfHiddenLayers
+        self.inLayer = None
         self.outLayer = None
+        self.bias = None
         self.trainer = None
         self.result = []
 
 
 
-    def configureArchitecture(self, numFeature=2, numHiddenNeurons=2, numClasses=2):
-        self.inLayer = LinearLayer(numFeature) # 2 is how many neuron the layer should have
+    def configureArchitecture(self, numFeatures=2, numHiddenNeurons=2, numClasses=2, bias=False):
+        self.inLayer = LinearLayer(numFeatures) # numFeatures is how many neuron the layer should have
 
-        self.outLayer(numClasses) # 1 is how many neuron the layer should have
+        self.outLayer = LinearLayer(numClasses) # numClasses is how many neuron the layer should have
 
         # add input layer
-        self.net.addInputModule(inLayer)
+        self.net.addInputModule(self.inLayer)
+
+        # Add bias layer
+        if bias:
+            self.bias = BiasUnit()
+            self.net.addModule(self.bias)
 
         # add number of hidden layers
         for i in range(self.numberOfHiddenLayers):
+
             hiddenLayer = TanhLayer(numHiddenNeurons) # 3 is how many neuron the layer should have
             self.net.addModule(hiddenLayer)
             # now we need to tell the net how it should connect its layers
             in_to_hidden = FullConnection(self.inLayer, hiddenLayer)
+            if bias:
+                bias_to_hidden = FullConnection(self.bias, hiddenLayer)
             hidden_to_out = FullConnection(hiddenLayer, self.outLayer)
             self.net.addConnection(in_to_hidden)
+            if bias: self.net.addConnection(bias_to_hidden)
             self.net.addConnection(hidden_to_out)
 
+
         # Add the output layer
-        self.net.addOutputModule(outLayer)
+        self.net.addOutputModule(self.outLayer)
 
         # Now all we need to do, to be able to use the network is some internal initialization
         self.net.sortModules()
@@ -57,12 +70,19 @@ class FFNetwork():
 
     def trainUntilConvergence(self):
         '''
+        Default behaviour: splits the dataset up into 75% training and 25% validation / testing
+
         :returns: A whole bunch of data, which is nothing but a tuple containing the errors for every training epoch.
         '''
-        self.trainer.trainUntilConvergence()
+        self.trainer.trainUntilConvergence(verbose = False, validationProportion = 0.15, maxEpochs = 1000, continueEpochs = 10)
 
     def run(self, inputs):
         self.result = self.net.activate(inputs)
+
+    # Not sure what the difference is between activate and activateOnDataset
+
+    def runOnDataset(self, ds):
+        self.result = self.net.activateOnDataset(ds)
 
 
 '''
@@ -83,12 +103,44 @@ def createDataset(dimensions=[2,1]):
     ds = SupervisedDataSet(dimensions[0], dimensions[1])
     return ds
 
-def createAtoencoderDataset():
+def createAutoencoderDataset(length=10, random=False):
     ds = SupervisedDataSet(1, 1)
 
-    for i in range(0,10):
-        ds.addSample((i,),(i,))
+    for i in range(1,length+1):
+        if random:
+            i = r.uniform(-1000,1000)
+            if i % 3 == 0: # if `i` is a odd number
+                i = r.random() * 10 # retruns a a number between [-10, 10)
 
+        ds.addSample(i, i)
+
+    return ds
+
+def createANDDataset():
+    ds = SupervisedDataSet(2,1)
+
+    ds.addSample((0,0), (0,))
+    ds.addSample((0,1), (0,))
+    ds.addSample((1,0), (0,))
+    ds.addSample((1,1), (1,))
+    return ds
+
+def createORDataset():
+    ds = SupervisedDataSet(2,1)
+
+    ds.addSample((0,0), (0,))
+    ds.addSample((0,1), (1,))
+    ds.addSample((1,0), (1,))
+    ds.addSample((1,1), (1,))
+    return ds
+
+def createXORDataset():
+    ds = SupervisedDataSet(2,1)
+
+    ds.addSample((0,0), (0,))
+    ds.addSample((0,1), (1,))
+    ds.addSample((1,0), (1,))
+    ds.addSample((1,1), (0,))
     return ds
 
 def getFromDataset(ds, want):
@@ -101,16 +153,26 @@ def getFromDataset(ds, want):
 
 def main():
     # Task 1: Creating the dataset
-    ds = createAtoencoderDataset()
+    training_ds = createAutoencoderDataset(length=8)
+    testing_ds= createAutoencoderDataset(length=5, random=True)
     # task 2: Build the nettwork
     net = FFNetwork(numberOfHiddenLayers=1)
-    net.configureArchitecture(numFeature=1, numHiddenNeurons=8, numClasses=10)
+    net.configureArchitecture(numFeatures=1, numHiddenNeurons=8, numClasses=1, bias=True)
     # task 3: Create a trainer for the network and dataset
-    net.createTrainer(ds)
+    net.createTrainer(training_ds)
     # task 4: Train until convergence
     net.trainUntilConvergence()
     # task 5: Activate / run the network on different integers, and examine result
-    print("Done training")
+    net.runOnDataset(training_ds)
+    print("Result on training data: {}".format(net.result))
+
+    net.runOnDataset(testing_ds)
+    print("Result on testing data: {}".format(net.result))
+
     # task 6 : Reduce amount of hiddenlayer neurons!
 
-main()
+
+
+
+if __name__ == "__main__":
+    main()
