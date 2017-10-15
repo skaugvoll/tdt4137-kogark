@@ -77,11 +77,15 @@ class FFNetwork():
         self.trainer.trainUntilConvergence(verbose = False, validationProportion = 0.15, maxEpochs = 1000, continueEpochs = 10)
 
     def run(self, inputs):
+        '''
+        activate takes only one input case (not entire dataset), which it tests upon
+        '''
         self.result = self.net.activate(inputs)
 
-    # Not sure what the difference is between activate and activateOnDataset
-
     def runOnDataset(self, ds):
+        '''
+        activateOnDataset takes in parts or entire datasets with cases and runs on all of them.
+        '''
         self.result = self.net.activateOnDataset(ds)
 
 
@@ -155,13 +159,17 @@ def main():
     # Task 1: Creating the dataset
     training_ds = createAutoencoderDataset(length=8)
     testing_ds= createAutoencoderDataset(length=5, random=True)
+
     # task 2: Build the nettwork
     net = FFNetwork(numberOfHiddenLayers=1)
     net.configureArchitecture(numFeatures=1, numHiddenNeurons=8, numClasses=1, bias=True)
+
     # task 3: Create a trainer for the network and dataset
     net.createTrainer(training_ds)
+
     # task 4: Train until convergence
     net.trainUntilConvergence()
+
     # task 5: Activate / run the network on different integers, and examine result
     net.runOnDataset(training_ds)
     print("Result on training data: {}".format(net.result))
@@ -170,7 +178,7 @@ def main():
     print("Result on testing data: {}".format(net.result))
 
     # task 6 : Reduce amount of hiddenlayer neurons!
-
+    # ...
 
 
 
