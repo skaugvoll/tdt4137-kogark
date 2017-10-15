@@ -108,6 +108,13 @@ def createDataset(dimensions=[2,1]):
     return ds
 
 def createAutoencoderDataset(length=10, random=False):
+    '''
+    Creats a supervised dataset with a given length.
+    Supervised = input and output is known.
+
+    If random = False
+    :return: Dataset with [i,i], where i = numbers from 1 to lenght
+    '''
     ds = SupervisedDataSet(1, 1)
 
     for i in range(1,length+1):
