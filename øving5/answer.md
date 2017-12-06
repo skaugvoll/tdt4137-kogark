@@ -59,7 +59,7 @@ L1, R1 and D1 are substates of S1, since its their superstate.
 #### B)
 - _DR1_ is of type `state`, and has 4 possible attributes. 
 
-### 4: Code knowledge 
+## 4: Code knowledge 
 > For each of the three code snippets, decide what type of rule it is.
 
 Every rule in Soar starts with `sp`- soar production rule.
